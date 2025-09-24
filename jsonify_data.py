@@ -1,9 +1,9 @@
 import os
 import json
 from bs4 import BeautifulSoup
-from psids import user_details
+from psids import user_details as jee_psids
+from neet_psids import user_details as neet_psids
 
-valid_psid_nos = [i['PSID'] for i in user_details]
 
 
 def safe_get_text(element):
@@ -13,7 +13,12 @@ def safe_get_text(element):
 base_url = "http://aakashleap.com:3131"
 
 
-def jsonify_data(valid_html, dump_file=False):
+def jsonify_data(valid_html, dump_file=False, fails=None, course='JEE'):
+    
+    if course == 'JEE':
+        valid_psid_nos = [i['PSID'] for i in jee_psids]
+    else:
+        valid_psid_nos = [i['PSID'] for i in neet_psids]
     folder_path = valid_html
     students_data = []
 
@@ -84,15 +89,16 @@ def jsonify_data(valid_html, dump_file=False):
                     "Topper Score": safe_get_text(total_cols[6]),
                     "Highest Score (Subject Wise)": safe_get_text(total_cols[8]),
                 }
-
-                if student_info["PSID"] not in valid_psid_nos:
-                    continue
+                # print(student_info,valid_psid_nos)
+                # if student_info["PSID"] not in valid_psid_nos:
+                #     continue
                 students_data.append(student_info)
 
     sorted_data = sorted(students_data, key=lambda x: x["Student Name"])
 
+
     if dump_file:
         with open(dump_file, "w", encoding="utf-8") as json_file:
-            json.dump(sorted_data, json_file, ensure_ascii=False, indent=2)
+            json.dump({"data": sorted_data,"fails": fails}, json_file, ensure_ascii=False, indent=2)
 
     return sorted_data

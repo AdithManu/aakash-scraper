@@ -1,7 +1,10 @@
 import requests
 import base64
 import os
-from psids import user_details
+
+from psids import user_details as jee_psids
+from neet_psids import user_details as neet_psids
+
 import threading
 
 
@@ -50,7 +53,11 @@ def fetch_single(i, test_id, output_folder):
     with open(os.path.join(output_folder, f"roll_N-{roll_no}.html"), "w") as f:
         f.write(r.text)
 
-def fetch(test_id, output_folder, max_threads=10):
+def fetch(test_id, output_folder, max_threads=10, course='JEE'):
+    if course == 'JEE':
+        user_details = jee_psids
+    else:
+        user_details = neet_psids
     threads = []
     for i in user_details[:50]:
         thread = threading.Thread(target=fetch_single, args=(i, test_id, output_folder))
